@@ -522,24 +522,29 @@ app.post("/api/estate/nazotte", async (req, res, next) => {
     );
 
     const estatesInPolygon = [];
-    for (const estate of estates) {
-      const point = util.format(
-        "'POINT(%f %f)'",
-        estate.latitude,
-        estate.longitude
-      );
-      const sql =
-        "SELECT * FROM estate WHERE id = ? AND ST_Contains(ST_PolygonFromText(%s), ST_GeomFromText(%s))";
-      const coordinatesToText = util.format(
-        "'POLYGON((%s))'",
-        coordinates
-          .map((coordinate) =>
-            util.format("%f %f", coordinate.latitude, coordinate.longitude)
-          )
-          .join(",")
-      );
-      const sqlstr = util.format(sql, coordinatesToText, point);
-      const [e] = await query(sqlstr, [estate.id]);
+    const eList = await Promise.all(
+      estates.map(async estate => {
+        const point = util.format(
+          "'POINT(%f %f)'",
+          estate.latitude,
+          estate.longitude
+        );
+        const sql =
+          "SELECT * FROM estate WHERE id = ? AND ST_Contains(ST_PolygonFromText(%s), ST_GeomFromText(%s))";
+        const coordinatesToText = util.format(
+          "'POLYGON((%s))'",
+          coordinates
+            .map((coordinate) =>
+              util.format("%f %f", coordinate.latitude, coordinate.longitude)
+            )
+            .join(",")
+        );
+        const sqlstr = util.format(sql, coordinatesToText, point);
+        const [e] = await query(sqlstr, [estate.id]);
+        return e;
+      })
+    );
+    for (const e of eList) {
       if (e && Object.keys(e).length > 0) {
         estatesInPolygon.push(e);
       }
