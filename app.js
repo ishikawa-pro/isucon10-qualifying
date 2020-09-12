@@ -28,6 +28,19 @@ const dbinfo = {
   connectionLimit: 10,
 };
 
+const regList = [
+  new RegExp('/ISUCONbot(-Mobile)?/'),
+  new RegExp('/ISUCONbot-Image\//'),
+  new RegExp('/Mediapartners-ISUCON/'),
+  new RegExp('/ISUCONCoffee/'),
+  new RegExp('/ISUCONFeedSeeker(Beta)?/'),
+  new RegExp('/crawler \(https:\/\/isucon\.invalid\/(support\/faq\/|help\/jp\/)/'),
+  new RegExp('/isubot/'),
+  new RegExp('/Isupider/'),
+  new RegExp('/Isupider(-image)?\+/'),
+  new RegExp('/(bot|crawler|spider)(?:[-_ .\/;@()]|$)/i'),
+];
+
 const app = express();
 const db = mysql.createPool(dbinfo);
 app.set("db", db);
@@ -53,6 +66,22 @@ app.post("/initialize", async (req, res, next) => {
     });
   } catch (e) {
     next(e);
+  }
+});
+
+app.use((req, res, next) => {
+  const ua = req.headers['user-agent'];
+  if (!ua) {
+    next();
+  }
+  for(const reg of regList) {
+    if (reg.test(ua)) {
+      console.log('@@@@@@@@@@@@@@@@@@@@');
+      console.log('ua hit!!', ua);
+      console.log('@@@@@@@@@@@@@@@@@@@@');
+      res.status(503).end();
+      return;
+    }
   }
 });
 
