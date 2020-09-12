@@ -70,6 +70,7 @@ app.use(morgan("combined"));
 app.use(express.json());
 app.use(uaEalryRetrun);
 app.post("/initialize", async (req, res, next) => {
+  lowPricedEstate = Object.assign({}, {estates: initalEstates});
   try {
     const dbdir = path.resolve("..", "mysql", "db");
     const dbfiles = [
