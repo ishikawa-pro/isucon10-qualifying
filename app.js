@@ -523,7 +523,7 @@ app.post("/api/estate/nazotte", async (req, res, next) => {
 
     const estatesInPolygon = [];
     const eList = await Promise.all(
-      estates.map(estate => {
+      estates.map(async estate => {
         const point = util.format(
           "'POINT(%f %f)'",
           estate.latitude,
