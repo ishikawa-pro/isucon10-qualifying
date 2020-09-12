@@ -313,13 +313,13 @@ app.get("/api/chair/:id", async (req, res, next) => {
 app.post("/api/chair/buy/:id", async (req, res, next) => {
   const getConnection = promisify(db.getConnection.bind(db));
   const connection = await getConnection();
-  const beginTransaction = promisify(connection.beginTransaction.bind(connection));
+  // const beginTransaction = promisify(connection.beginTransaction.bind(connection));
   const query = promisify(connection.query.bind(connection));
-  const commit = promisify(connection.commit.bind(connection));
-  const rollback = promisify(connection.rollback.bind(connection));
+  // const commit = promisify(connection.commit.bind(connection));
+  // const rollback = promisify(connection.rollback.bind(connection));
   try {
     const id = req.params.id;
-    await beginTransaction();
+    // await beginTransaction();
     const [
       chair,
     ] = await query(
@@ -335,10 +335,10 @@ app.post("/api/chair/buy/:id", async (req, res, next) => {
       chair.stock - 1,
       id,
     ]);
-    await commit();
+    // await commit();
     res.json({ ok: true });
   } catch (e) {
-    await rollback();
+    // await rollback();
     next(e);
   } finally {
     await connection.release();
