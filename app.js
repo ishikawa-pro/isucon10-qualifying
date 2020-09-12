@@ -29,16 +29,16 @@ const dbinfo = {
 };
 
 const regList = [
-  new RegExp('/ISUCONbot(-Mobile)?/'),
-  new RegExp('/ISUCONbot-Image\//'),
-  new RegExp('/Mediapartners-ISUCON/'),
-  new RegExp('/ISUCONCoffee/'),
-  new RegExp('/ISUCONFeedSeeker(Beta)?/'),
-  new RegExp('/crawler \(https:\/\/isucon\.invalid\/(support\/faq\/|help\/jp\/)/'),
-  new RegExp('/isubot/'),
-  new RegExp('/Isupider/'),
-  new RegExp('/Isupider(-image)?\+/'),
-  new RegExp('/(bot|crawler|spider)(?:[-_ .\/;@()]|$)/i'),
+  /ISUCONbot(-Mobile)?/,
+  /ISUCONbot-Image\//,
+  /Mediapartners-ISUCON/,
+  /ISUCONCoffee/,
+  /ISUCONFeedSeeker(Beta)?/,
+  /crawler \(https:\/\/isucon\.invalid\/(support\/faq\/|help\/jp\/)/,
+  /isubot/,
+  /Isupider/,
+  /Isupider(-image)?\+/,
+  /(bot|crawler|spider)(?:[-_ .\/;@()]|$)/i,
 ];
 
 const app = express();
@@ -83,6 +83,7 @@ app.use((req, res, next) => {
       return;
     }
   }
+  next();
 });
 
 app.get("/api/estate/low_priced", async (req, res, next) => {
