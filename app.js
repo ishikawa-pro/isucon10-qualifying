@@ -41,12 +41,30 @@ const regList = [
   /(bot|crawler|spider)(?:[-_ .\/;@()]|$)/i,
 ];
 
+const uaEalryRetrun = (req, res, next) => {
+  const ua = req.headers['user-agent'];
+  if (!ua) {
+    next();
+  }
+  for(const reg of regList) {
+    if (reg.test(ua)) {
+      console.log('@@@@@@@@@@@@@@@@@@@@');
+      console.log('ua hit!!', ua);
+      console.log('@@@@@@@@@@@@@@@@@@@@');
+      res.status(503).end();
+      return;
+    }
+  }
+  next();
+};
+
 const app = express();
 const db = mysql.createPool(dbinfo);
 app.set("db", db);
 
 app.use(morgan("combined"));
 app.use(express.json());
+app.use(uaEalryRetrun);
 app.post("/initialize", async (req, res, next) => {
   try {
     const dbdir = path.resolve("..", "mysql", "db");
@@ -67,23 +85,6 @@ app.post("/initialize", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-});
-
-app.use((req, res, next) => {
-  const ua = req.headers['user-agent'];
-  if (!ua) {
-    next();
-  }
-  for(const reg of regList) {
-    if (reg.test(ua)) {
-      console.log('@@@@@@@@@@@@@@@@@@@@');
-      console.log('ua hit!!', ua);
-      console.log('@@@@@@@@@@@@@@@@@@@@');
-      res.status(503).end();
-      return;
-    }
-  }
-  next();
 });
 
 app.get("/api/estate/low_priced", async (req, res, next) => {
