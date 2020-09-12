@@ -16,6 +16,8 @@ const exec = promisify(cp.exec);
 const chairSearchCondition = require("../fixture/chair_condition.json");
 const estateSearchCondition = require("../fixture/estate_condition.json");
 
+const initalEstates = require('./inital_estets');
+
 const PORT = process.env.PORT ?? 1323;
 const LIMIT = 20;
 const NAZOTTE_LIMIT = 50;
@@ -40,6 +42,8 @@ const regList = [
   /Isupider(-image)?\+/,
   /(bot|crawler|spider)(?:[-_ .\/;@()]|$)/i,
 ];
+
+let lowPricedEstate = Object.assign({}, {estates: initalEstates});
 
 const uaEalryRetrun = (req, res, next) => {
   const ua = req.headers['user-agent'];
@@ -88,6 +92,10 @@ app.post("/initialize", async (req, res, next) => {
 });
 
 app.get("/api/estate/low_priced", async (req, res, next) => {
+  if(!lowPricedEstate.estates.length) {
+    res.json(lowPricedEstate);
+    return;
+  };
   const getConnection = promisify(db.getConnection.bind(db));
   const connection = await getConnection();
   const query = promisify(connection.query.bind(connection));
@@ -97,6 +105,7 @@ app.get("/api/estate/low_priced", async (req, res, next) => {
       [LIMIT]
     );
     const estates = es.map((estate) => camelcaseKeys(estate));
+    lowPricedEstate.estates = estates;
     res.json({ estates });
   } catch (e) {
     next(e);
@@ -644,6 +653,7 @@ app.post("/api/estate", upload.single("estates"), async (req, res, next) => {
       );
     }
     await commit();
+    lowPricedEstate.estates = [];
     res.status(201);
     res.json({ ok: true });
   } catch (e) {
